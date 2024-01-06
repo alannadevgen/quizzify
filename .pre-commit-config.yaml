@@ -1,0 +1,80 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-ast
+        name: Valid Python files
+        description: simply checks whether the files parse as valid python.
+      - id: check-json
+        name: JSON with parseable syntax
+        description: checks json files for parseable syntax.
+        files: \.(json)$
+      - id: check-toml
+        name: TOML with parseable syntax
+        description: checks toml files for parseable syntax.
+        files: \.(toml)$
+      - id: check-yaml
+        name: YAML with parseable syntax
+        description: checks yaml files for parseable syntax.
+        files: \.(yml|yaml)$
+      - id: end-of-file-fixer
+        name: File is either empty or ends with one newline
+        description: ensures that a file is either empty, or ends with one newline.
+        files: \.(py|sh|rst|yml|yaml)$
+      - id: trailing-whitespace
+        name: Trims trailing whitespace
+        description: trims trailing whitespace.
+        files: \.(py|sh|rst|yml|yaml)$
+  # black
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        name: Black code formatter
+        description: code formatter
+  # isort
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: Sort module imports in .py files
+        description: Sort module imports in .py files
+        args: [ "--profile", "black", "--filter-files" ]
+  # flake8
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        name: Checking the style and quality of Python code
+        args: [ '--max-line-length=88' ]
+        exclude: ^/tests
+        language: python
+        language_version: python3
+        types_or: [ python ]
+        stages: [ commit ]
+  # mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.2.0
+    hooks:
+      - id: mypy
+        name: Data typing
+  # pydocstyle
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1
+    hooks:
+      - id: pydocstyle
+        name: Documentation
+        args: [ --convention=numpy, --add-ignore=D100 ]
+  # bandit
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.0
+    hooks:
+      - id: bandit
+        name: Security checker
+  # commitizen
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.13.0
+    hooks:
+      - id: commitizen
+        name: Commit name conventions
+        args: [ '--' ]
