@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "quizzify"
+version = "0.1.0"
+description = "Simple quizz."
+authors = [
+    "Alanna DEVLIN GENIN <alannadevlingenin@gmail.com>"
+]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^7.0.0"
+black = "^23.12.1"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "0.1.0"
+version_scheme = "semver"
+version_provider = "poetry"
+update_changelog_on_bump = true
+major_version_zero = true
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
