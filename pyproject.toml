@@ -14,6 +14,13 @@ python = "^3.10"
 flake8 = "^7.0.0"
 black = "^23.12.1"
 
+[tool.pydocstyle]
+convention = "numpy"
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "0.1.0"
