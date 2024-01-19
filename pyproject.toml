@@ -6,13 +6,7 @@ authors = [
     "Alanna DEVLIN GENIN <alannadevlingenin@gmail.com>"
 ]
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.10"
-
-[tool.poetry.dev-dependencies]
-flake8 = "^7.0.0"
-black = "^23.12.1"
+license = "Apache-2.0"
 
 [tool.pydocstyle]
 convention = "numpy"
