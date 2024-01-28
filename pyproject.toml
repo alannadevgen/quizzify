@@ -7,6 +7,7 @@ authors = [
 ]
 readme = "README.md"
 license = "Apache-2.0"
+packages = [{include = "src"}]
 
 [tool.pydocstyle]
 convention = "numpy"
@@ -15,6 +16,12 @@ convention = "numpy"
 line-length = 88
 include = '\.pyi?$'
 
+# enables pytest to find the source code
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "src"
+]
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "0.1.0"
@@ -22,6 +29,9 @@ version_scheme = "semver"
 version_provider = "poetry"
 update_changelog_on_bump = true
 major_version_zero = true
+
+[bandit]
+exclude = ["tests/*"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
