@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-ast
         name: Valid Python files
@@ -27,14 +27,14 @@ repos:
         files: \.(py|sh|rst|yml|yaml)$
   # black
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 24.1.1
     hooks:
       - id: black
         name: Black code formatter
         description: code formatter
   # isort
   - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
         name: Sort module imports in .py files
@@ -42,7 +42,7 @@ repos:
         args: [ "--profile", "black", "--filter-files" ]
   # flake8
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 7.0.0
     hooks:
       - id: flake8
         name: Checking the style and quality of Python code
@@ -54,20 +54,20 @@ repos:
         stages: [ commit ]
   # mypy
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.2.0
+    rev: v1.8.0
     hooks:
       - id: mypy
         name: Data typing
   # pydocstyle
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.1.1
+    rev: 6.3.0
     hooks:
       - id: pydocstyle
         name: Documentation
         args: [ --convention=numpy, --add-ignore=D100 ]
   # bandit
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.0
+    rev: 1.7.7
     hooks:
       - id: bandit
         name: Security checker

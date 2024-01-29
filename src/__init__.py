@@ -1,0 +1,1 @@
+"""Quizzify source package."""

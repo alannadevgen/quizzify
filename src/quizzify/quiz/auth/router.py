@@ -1,14 +1,11 @@
 import logging
 import os
-from datetime import datetime, timedelta
-from urllib.parse import urlencode
 
-import requests
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Request, status
 from fastapi.responses import RedirectResponse
 
-from quizzify.quiz.utils.helpers import encode_str_to_base64, generate_random_string
+from quizzify.quiz.auth import service
 
 # load environment variables
 load_dotenv()
@@ -24,7 +21,6 @@ SPOTIFY_REDIRECT_URI = os.environ.get("SPOTIFY_REDIRECT_URI")
 SPOTIFY_TOKEN_URL = os.environ.get("SPOTIFY_TOKEN_URL")
 SPOTIFY_AUTH_URL = os.environ.get("SPOTIFY_AUTH_URL")
 SPOTIFY_AUTH_SCOPE = os.environ.get("SPOTIFY_AUTH_SCOPE")
-STATE = generate_random_string(16)
 
 
 @router.get(
@@ -38,7 +34,7 @@ STATE = generate_random_string(16)
         "callback URL specified in the Spotify Developer Dashboard."
     ),
 )
-def login():
+async def login():
     """Redirect user to Spotify Authorization URL.
 
     The user will be redirected to the Spotify Authorization URL to authorize
@@ -51,20 +47,7 @@ def login():
         A redirect response to the Spotify Authorization URL.
     """
     logger.info("Redirecting user to Spotify Authorization URL.")
-    authorization_url = (
-        SPOTIFY_AUTH_URL
-        + "?"
-        + urlencode(
-            {
-                "client_id": SPOTIFY_CLIENT_ID,
-                "redirect_uri": SPOTIFY_REDIRECT_URI,
-                "response_type": "code",
-                "scope": SPOTIFY_AUTH_SCOPE,
-                "state": STATE,
-                "show_dialog": True,  # ask user to reauthorize if already authorized
-            }
-        )
-    )
+    authorization_url = await service.login_redirect_url()
     return RedirectResponse(url=authorization_url, status_code=307)
 
 
@@ -81,13 +64,13 @@ def login():
 async def callback(
     request: Request,
     code: str,
-    state: str = None,
+    state: str,
 ):
     """Redirect user to Spotify Authorization URL.
 
-    The user will be redirected to this URL after authorizing the application
-    on the Spotify Authorization URL. This endpoint will exchange the
-    authorization code for an access token.
+    The user will be redirected to the Spotify Authorization URL to authorize
+    the application. After authorization, the user will be redirected to the
+    callback URL specified in the Spotify Developer Dashboard.
 
     Parameters
     ----------
@@ -95,84 +78,22 @@ async def callback(
         The request object.
     code : str
         The authorization code returned by Spotify.
-    state : str, optional
-        The state returned by Spotify, by default None
-
-    Returns
-    -------
-    dict
-        A dictionary containing the access token and other token information.
+    state : str
+        The state returned by Spotify.
     """
     logger.info("Callback URL for Spotify Authorization")
-    # Check if state matches
-    if state is not None and state != STATE:
-        raise HTTPException(
-            status_code=400,
-            detail="State not provided",
-        )
-
-    if code is None:
-        raise HTTPException(
-            status_code=400,
-            detail="Authorization code not provided",
-        )
-
-    # Exchange code for access token
-    token_data = {
-        "grant_type": "authorization_code",
-        "code": code,
-        "redirect_uri": SPOTIFY_REDIRECT_URI,
-        "client_id": SPOTIFY_CLIENT_ID,
-        "client_secret": SPOTIFY_CLIENT_SECRET,
-    }
-    # Encode authorization info to base64
-    auth_info = f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_CLIENT_SECRET}"
-    encoded_auth_info = encode_str_to_base64(auth_info)
-
-    # header for token request
-    header_data = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": "Basic " + str(encoded_auth_info),
-    }
-    response = requests.post(
-        url="https://accounts.spotify.com/api/token",
-        data=token_data,
-        headers=header_data,
-    )
-
-    if response.status_code == 200:
-        raw_response = response.json()
-        access_token = raw_response["access_token"]
-        refresh_token = raw_response["refresh_token"]
-        token_expiration = raw_response["expires_in"]
-        token_expiration_date = datetime.now() + timedelta(seconds=token_expiration)
-        scope = raw_response["scope"]
-        tokens = {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "token_expiration": token_expiration,
-            "token_expiration_date": token_expiration_date,
-            "scope": scope,
-        }
-        # TODO: Store the token securely (e.g., in a database) for future use
-        os.environ["ACCESS_TOKEN"] = access_token
-        os.environ["REFRESH_TOKEN"] = refresh_token
-        os.environ["TOKEN_EXPIRATION"] = str(token_expiration)
-        os.environ["TOKEN_EXPIRATION_DATE"] = str(token_expiration_date)
-        os.environ["SCOPE"] = scope
-        return tokens
-    else:
-        raise HTTPException(
-            status_code=response.status_code,
-            detail="Failed to retrieve access token",
-        )
+    tokens = await service.generate_access_token(code, state)
+    return tokens
 
 
 @router.get(
     path="/refresh",
     status_code=status.HTTP_200_OK,
     summary="Refresh access token",
-    description=("Refresh the access token using the refresh token."),
+    description=(
+        "Refresh the access token using the refresh token. The refresh token expires "
+        "after 1 hour, thus the access token must be refreshed every hour."
+    ),
 )
 async def refresh_token():
     """Refresh access token.
@@ -184,45 +105,25 @@ async def refresh_token():
     dict
         A dictionary containing the access token and other token information.
     """
-    # Check if refresh token is available
-    if "REFRESH_TOKEN" not in os.environ:
-        raise HTTPException(
-            status_code=400,
-            detail="Refresh token not available",
-        )
+    tokens = await service.refresh_access_token()
+    return tokens
 
-    # Exchange code for access token
-    token_data = {
-        "grant_type": "refresh_token",
-        "refresh_token": os.environ["REFRESH_TOKEN"],
-    }
-    # Encode authorization info to base64
-    auth_info = f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_CLIENT_SECRET}"
-    encoded_auth_info = encode_str_to_base64(auth_info)
 
-    # header for token request
-    header_data = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": "Basic " + str(encoded_auth_info),
-    }
-    response = requests.post(
-        url=SPOTIFY_TOKEN_URL,
-        data=token_data,
-        headers=header_data,
-    )
+@router.get(
+    path="/token",
+    status_code=status.HTTP_200_OK,
+    summary="Get access token",
+    description=("Get the access token for the Spotify API."),
+)
+async def get_token():
+    """Get access token.
 
-    if response.status_code == 200:
-        raw_response = response.json()
-        for key, value in raw_response.items():
-            print(f"{key}: {value}")
-        token_expiration_date = datetime.now() + timedelta(
-            seconds=raw_response["expires_in"]
-        )
-        tokens = {
-            "access_token": raw_response["access_token"],
-            # "refresh_token": raw_response["refresh_token"],
-            "token_expiration": raw_response["expires_in"],
-            "token_expiration_date": token_expiration_date,
-            "scope": raw_response["scope"],
-        }
-        return tokens
+    Get the access token for the Spotify API.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the access token and other token information.
+    """
+    tokens = await service.get_token()
+    return tokens

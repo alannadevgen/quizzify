@@ -9,6 +9,18 @@ readme = "README.md"
 license = "Apache-2.0"
 packages = [{include = "src"}]
 
+[tool.pre_commit]
+hooks = [
+  "pydocstyle",
+  "mypy",
+  "black",
+  "flake8",
+  "isort",
+  "bandit",
+  "pytest",
+  "commitizen"
+]
+
 [tool.pydocstyle]
 convention = "numpy"
 
@@ -29,6 +41,9 @@ version_scheme = "semver"
 version_provider = "poetry"
 update_changelog_on_bump = true
 major_version_zero = true
+
+[tool.mypy]
+plugins = ["mypy.plugins.typeshed.client.api"]
 
 [bandit]
 exclude = ["tests/*"]
