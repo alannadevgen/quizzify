@@ -1,4 +1,4 @@
-from src.quizzify.quiz.utils.helpers import encode_str_to_base64
+from src.utils.helpers import encode_str_to_base64
 
 
 def test_encode_str_to_base64():
