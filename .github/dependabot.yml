@@ -15,4 +15,4 @@ updates:
     open-pull-requests-limit: 10
     target-branch: "dev"
     commit-message:
-      prefix: ":seedling: Update "
+      prefix: ":seedling: "

@@ -9,6 +9,18 @@ readme = "README.md"
 license = "Apache-2.0"
 packages = [{include = "src"}]
 
+[tool.pre_commit]
+hooks = [
+  "pydocstyle",
+  "mypy",
+  "black",
+  "flake8",
+  "isort",
+  "bandit",
+  "pytest",
+  "commitizen"
+]
+
 [tool.pydocstyle]
 convention = "numpy"
 
@@ -19,7 +31,8 @@ include = '\.pyi?$'
 # enables pytest to find the source code
 [tool.pytest.ini_options]
 pythonpath = [
-  ".", "src"
+  ".",
+  "src",
 ]
 
 [tool.commitizen]
@@ -29,6 +42,16 @@ version_scheme = "semver"
 version_provider = "poetry"
 update_changelog_on_bump = true
 major_version_zero = true
+
+[tool.mypy]
+python_version = "3.9"
+#ignore_missing_imports = true
+#disallow_untyped_defs = true
+#show_error_codes = true
+#no_implicit_optional = true
+#warn_return_any = true
+#warn_unused_ignores = true
+exclude = ["tests"]
 
 [bandit]
 exclude = ["tests/*"]
