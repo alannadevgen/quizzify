@@ -89,6 +89,12 @@ async def refresh_access_token():
 
 
 async def get_token():
-    """Get the latest access token."""
+    """Get the latest access token.
+
+    Returns
+    -------
+    str
+        The newest access token.
+    """
     global spotify_auth
     return spotify_auth.get_access_token()
