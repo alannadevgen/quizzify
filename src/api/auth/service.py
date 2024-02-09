@@ -3,8 +3,8 @@ from urllib.parse import urlencode
 
 from dotenv import load_dotenv
 
-from quizzify.quiz.utils.helpers import generate_random_string
-from quizzify.spotify.token_manager import SpotifyAuthService
+from spotify.spotify_auth_service import SpotifyAuthService
+from utils.helpers import generate_random_string
 
 load_dotenv()
 
@@ -17,7 +17,7 @@ SPOTIFY_AUTH_SCOPE = os.environ.get("SPOTIFY_AUTH_SCOPE")
 SPOTIFY_TOKEN_URL = os.environ.get("SPOTIFY_TOKEN_URL")
 
 # instantiate token manager for Spotify access token
-spotify_auth_service = SpotifyAuthService()
+spotify_auth = SpotifyAuthService()
 
 
 async def login_redirect_url():
@@ -69,14 +69,9 @@ async def generate_access_token(
         A dictionary containing the access token, refresh token, and token
         expiration date.
     """
-    spotify_auth_service.generate_access_token(code, state)
-
-    tokens = {
-        "access_token": spotify_auth_service.access_token,
-        "refresh_token": spotify_auth_service.refresh_token,
-        "token_expiration_date": spotify_auth_service.token_expiration_date,
-    }
-    return tokens
+    global spotify_auth
+    spotify_auth.generate_access_token(code, state)
+    return spotify_auth.to_dict()
 
 
 async def refresh_access_token():
@@ -88,15 +83,12 @@ async def refresh_access_token():
         A dictionary containing the access token, refresh token, and token
         expiration date.
     """
-    spotify_auth_service.refresh_access_token()
-    return {
-        "access_token": spotify_auth_service.access_token,
-        "refresh_token": spotify_auth_service.refresh_token,
-        "token_expiration_date": spotify_auth_service.token_expiration_date,
-    }
+    global spotify_auth
+    spotify_auth.refresh_access_token()
+    return spotify_auth.to_dict()
 
 
 async def get_token():
     """Get the latest access token."""
-    token = spotify_auth_service.get_access_token()
-    return token
+    global spotify_auth
+    return spotify_auth.get_access_token()

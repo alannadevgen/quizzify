@@ -1,10 +1,10 @@
 import os
 from datetime import datetime, timedelta
 
-import requests
+import requests  # type: ignore[import-untyped]
 from dotenv import load_dotenv
 
-from quizzify.quiz.utils.helpers import encode_str_to_base64
+from utils.helpers import encode_str_to_base64
 
 load_dotenv()
 
@@ -13,7 +13,8 @@ class SpotifyAuthService:
     """Service for authenticating and authorizing the Spotify API.
 
     This class handles the authentication and authorization for the Spotify API.
-    It also handles the refreshing of the access token.
+    It also handles the refreshing of the access token. This class is a singleton
+    class, so it can be used across the application.
 
     Attributes
     ----------
@@ -29,14 +30,12 @@ class SpotifyAuthService:
         The scope of authorization for the Spotify API.
     redirect_uri : str
         The redirect URI for the Spotify API.
-
-    Parameters
-    ----------
-    refresh_token : str
+    __refresh_token : str
         The refresh token for the Spotify API.
-    access_token : str
+    __access_token : str
         The access token for the Spotify API.
-    token_expiration_date : datetime
+    __token_expiration_date : datetime
+        The expiration date of the access token for the Spotify API.
 
     Methods
     -------
@@ -48,35 +47,66 @@ class SpotifyAuthService:
 
     client_id = os.environ.get("SPOTIFY_CLIENT_ID")
     client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
-    token_url = os.environ.get("SPOTIFY_TOKEN_URL")
-    auth_url = os.environ.get("SPOTIFY_AUTH_URL")
+    token_url = str(os.environ.get("SPOTIFY_TOKEN_URL"))
+    auth_url = str(os.environ.get("SPOTIFY_AUTH_URL"))
     auth_scope = os.environ.get("SPOTIFY_AUTH_SCOPE")
     redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI")
 
+    # Singleton instance
+    _instance = None
+
+    def __new__(cls):
+        """Create a new instance of the SpotifyAuthService.
+
+        This method creates a new instance of the SpotifyAuthService if one does
+        not already exist. If an instance already exists, it will return the
+        existing instance. This follows the singleton pattern.
+
+        Returns
+        -------
+        SpotifyAuthService
+            The singleton instance of the SpotifyAuthService.
+        """
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            # Initialize the singleton instance
+            cls._instance.__refresh_token = None
+            cls._instance.__access_token = None
+            cls._instance.__token_expiration_date = None
+        return cls._instance
+
     def __init__(self):
-        self._refresh_token = None
-        self._access_token = None
-        self._token_expiration_date = None
+        self.__access_token = None
+        self.__refresh_token = None
+        self.__token_expiration_date = None
+
+    def to_dict(self):
+        """Return the attributes of the SpotifyAuthService as a dictionary."""
+        return {
+            "access_token": self.__access_token,
+            "refresh_token": self.__refresh_token,
+            "token_expiration_date": self.__token_expiration_date,
+        }
 
     @property
     def refresh_token(self):
         """Return the refresh token for the Spotify API."""
-        return self._refresh_token
+        return self.__refresh_token
 
     @refresh_token.setter
     def refresh_token(self, value):
         """Set the refresh token for the Spotify API."""
-        self._refresh_token = value
+        self.__refresh_token = value
 
     @property
     def access_token(self):
         """Return the access token for the Spotify API."""
-        return self._access_token
+        return self.__access_token
 
     @property
     def token_expiration_date(self):
         """Return the expiration date of the access token for the Spotify API."""
-        return self._token_expiration_date
+        return self.__token_expiration_date
 
     @property
     def is_token_expired(self):
@@ -106,10 +136,11 @@ class SpotifyAuthService:
         ValueError
             If no valid access token or refresh token is available.
         """
-        if self._access_token and not self.is_token_expired:
-            return self._access_token
-        elif self._refresh_token:
-            return self.refresh_access_token()
+        if self.__access_token and not self.is_token_expired:
+            return self.to_dict()
+        elif self.__refresh_token:
+            self.refresh_access_token()
+            return self.to_dict()
         else:
             raise ValueError("No valid access token or refresh token available.")
 
@@ -138,6 +169,7 @@ class SpotifyAuthService:
             "client_id": self.client_id,
             "client_secret": self.client_secret,
         }
+        # TODO: create a function to handle headers
         auth_info = f"{self.client_id}:{self.client_secret}"
         encoded_auth_info = encode_str_to_base64(auth_info)
         header_data = {
@@ -153,10 +185,10 @@ class SpotifyAuthService:
 
         if response.status_code == 200:
             raw_response = response.json()
-            self._access_token = raw_response["access_token"]
-            self._refresh_token = raw_response["refresh_token"]
+            self.__access_token = raw_response["access_token"]
+            self.__refresh_token = raw_response["refresh_token"]
             token_expiration = raw_response["expires_in"]
-            self._token_expiration_date = datetime.now() + timedelta(
+            self.__token_expiration_date = datetime.now() + timedelta(
                 seconds=token_expiration
             )
         else:
@@ -178,13 +210,14 @@ class SpotifyAuthService:
         Exception
             If the access token could not be refreshed.
         """
-        if not self._refresh_token:
+        if not self.__refresh_token:
             raise Exception("Refresh token not available")
 
         token_data = {
             "grant_type": "refresh_token",
-            "refresh_token": self._refresh_token,
+            "refresh_token": self.__refresh_token,
         }
+        # TODO: create a function to handle headers --> this is the same as above
         auth_info = f"{self.client_id}:{self.client_secret}"
         encoded_auth_info = encode_str_to_base64(auth_info)
         header_data = {
@@ -200,9 +233,9 @@ class SpotifyAuthService:
 
         if response.status_code == 200:
             raw_response = response.json()
-            self._access_token = raw_response["access_token"]
+            self.__access_token = raw_response["access_token"]
             token_expiration = raw_response["expires_in"]
-            self._token_expiration_date = datetime.now() + timedelta(
+            self.__token_expiration_date = datetime.now() + timedelta(
                 seconds=token_expiration
             )
         else:

@@ -3,6 +3,7 @@ import logging.config
 from fastapi import FastAPI
 
 from quizzify.quiz.auth.router import router as auth_router
+from quizzify.quiz.songs.router import router as songs_router
 
 # get root logger
 logger = logging.getLogger(__name__)
@@ -23,3 +24,4 @@ def index():
 
 
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(songs_router, prefix="/songs", tags=["Songs"])

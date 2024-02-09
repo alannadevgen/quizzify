@@ -58,6 +58,7 @@ repos:
     hooks:
       - id: mypy
         name: Data typing
+        args: [ '--ignore-missing-imports' ]
   # pydocstyle
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.3.0

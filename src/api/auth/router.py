@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, Request, status
 from fastapi.responses import RedirectResponse
 
-from quizzify.quiz.auth import service
+from api.auth import service
 
 # load environment variables
 load_dotenv()
@@ -87,7 +87,7 @@ async def callback(
 
 
 @router.get(
-    path="/refresh",
+    path="/tokens/refresh",
     status_code=status.HTTP_200_OK,
     summary="Refresh access token",
     description=(
@@ -110,10 +110,10 @@ async def refresh_token():
 
 
 @router.get(
-    path="/token",
+    path="/tokens",
     status_code=status.HTTP_200_OK,
     summary="Get access token",
-    description=("Get the access token for the Spotify API."),
+    description="Get the latest access token for the Spotify API.",
 )
 async def get_token():
     """Get access token.

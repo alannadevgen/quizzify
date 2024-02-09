@@ -1,1 +1,1 @@
-"""Quizzify source package."""
+"""Quizzify package."""
