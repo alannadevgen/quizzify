@@ -31,7 +31,8 @@ include = '\.pyi?$'
 # enables pytest to find the source code
 [tool.pytest.ini_options]
 pythonpath = [
-  ".", "src"
+  ".",
+  "src",
 ]
 
 [tool.commitizen]
@@ -42,12 +43,9 @@ version_provider = "poetry"
 update_changelog_on_bump = true
 major_version_zero = true
 
-[mypy-requests]
-ignore_missing_imports = true
-
 [tool.mypy]
-#ignore_missing_imports = true
 python_version = "3.9"
+#ignore_missing_imports = true
 #disallow_untyped_defs = true
 #show_error_codes = true
 #no_implicit_optional = true

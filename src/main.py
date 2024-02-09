@@ -2,8 +2,8 @@ import logging.config
 
 from fastapi import FastAPI
 
-from quizzify.quiz.auth.router import router as auth_router
-from quizzify.quiz.songs.router import router as songs_router
+from api.auth.router import router as auth_router
+from api.songs import router as songs_router
 
 # get root logger
 logger = logging.getLogger(__name__)
