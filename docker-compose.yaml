@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  # Quizzify API
+  quizzify-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quizzify-api
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000 --log-config logging.conf
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    env_file:
+      - .env
+
+  # Database
+  mongodb:
+    image: mongo:7.0.5
+    container_name: db
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+# Volumes
+volumes:
+  mongodb_data:
+    driver: local
