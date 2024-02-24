@@ -13,13 +13,33 @@ services:
       - "8000:8000"
     depends_on:
       - mongodb
+      - postgres
     env_file:
       - .env
 
-  # Database
+  ## -----------------------------------------------------------------------------------
+  ## ------------------------------------ Databases ------------------------------------
+  ## -----------------------------------------------------------------------------------
+
+  # PostgreSQL
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      # Mount the volume to persist the data
+      - postgres_data:/var/lib/postgresql/data
+      # Mount the init script to create the database as an entrypoint to the container
+      - ./app/quizzify/databases/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # MongoDB
   mongodb:
     image: mongo:7.0.5
-    container_name: db
+    container_name: mongo
     restart: always
     ports:
       - "27017:27017"
@@ -28,5 +48,10 @@ services:
 
 # Volumes
 volumes:
+  # PostgreSQL
+  postgres_data:
+      driver: local
+
+  # MongoDB
   mongodb_data:
     driver: local
