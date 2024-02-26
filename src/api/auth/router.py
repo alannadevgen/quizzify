@@ -6,6 +6,7 @@ from fastapi import APIRouter, Request, status
 from fastapi.responses import RedirectResponse
 
 from api.auth import service
+from utils import models
 
 # load environment variables
 load_dotenv()
@@ -127,3 +128,52 @@ async def get_token():
     """
     tokens = await service.get_token()
     return tokens
+
+
+@router.post(
+    path="/register",
+    status_code=status.HTTP_201_CREATED,
+    summary="Create an account for the quiz app",
+    description=(
+        "Create a new account for quizzify. This will enable the user to login to the "
+        "application and access the quiz features."
+    ),
+)
+async def register_user(
+    # username: str = None,
+    # password: str = None,
+    # email: str = None,
+    user: models.User,
+):
+    """Create an account for the quiz app.
+
+    Create a new account for quizzify. This will enable the user to log in to the
+    application and access the quiz features.
+
+    Parameters
+    ----------
+    username : str
+        The username for the new account.
+    password : str
+        The password for the new account.
+    email : str
+        The user's email.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the user's username and a message indicating the
+        account was successfully created.
+    """
+    logger.info(f"Creating a new account for the user {user.username}.")
+    user = await service.register_user(
+        username=user.username,
+        email=user.email,
+        password=user.password,
+    )
+    # user = await service.register_user(
+    #     username=password,
+    #     email=email,
+    #     password=password,
+    # )
+    return user
