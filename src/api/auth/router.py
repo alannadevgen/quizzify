@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, status
 from fastapi.responses import RedirectResponse
 
 from api.auth import service
-from utils import models
+from utils import schemas
 
 # load environment variables
 load_dotenv()
@@ -140,10 +140,7 @@ async def get_token():
     ),
 )
 async def register_user(
-    # username: str = None,
-    # password: str = None,
-    # email: str = None,
-    user: models.User,
+    user: schemas.User,
 ):
     """Create an account for the quiz app.
 
@@ -152,18 +149,13 @@ async def register_user(
 
     Parameters
     ----------
-    username : str
-        The username for the new account.
-    password : str
-        The password for the new account.
-    email : str
-        The user's email.
+    user : schemas.User
+        The user information to create the account (username, email, password).
 
     Returns
     -------
     dict
-        A dictionary containing the user's username and a message indicating the
-        account was successfully created.
+        A dictionary containing the user's Spotify information.
     """
     logger.info(f"Creating a new account for the user {user.username}.")
     user = await service.register_user(
@@ -171,9 +163,40 @@ async def register_user(
         email=user.email,
         password=user.password,
     )
-    # user = await service.register_user(
-    #     username=password,
-    #     email=email,
-    #     password=password,
-    # )
+    return user
+
+
+@router.post(
+    path="/login",
+    status_code=status.HTTP_200_OK,
+    summary="Log in to the quiz app",
+    description=(
+        "Log in to the quizzify application. The user will be able to connect to the "
+        "account previously created."
+    ),
+)
+async def login_user(
+    user: schemas.User,
+):
+    """Log in to the quiz app.
+
+    Log in to the quizzify application. The user will be able to connect to the
+    account previously created by checking if the account exists and the password
+    is correct.
+
+    Parameters
+    ----------
+    user : schemas.User
+        The user information to log in (email, password).
+
+    Returns
+    -------
+    dict
+        A dictionary containing the user's Spotify information.
+    """
+    logger.info(f"Logging in to the account for the user {user.email}.")
+    user = await service.login_user(
+        email=user.email,
+        password=user.password,
+    )
     return user
