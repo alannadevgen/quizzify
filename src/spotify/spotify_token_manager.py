@@ -5,11 +5,12 @@ import requests  # type: ignore[import-untyped]
 from dotenv import load_dotenv
 
 from utils.helpers import encode_str_to_base64
+from utils.singleton import Singleton
 
 load_dotenv()
 
 
-class SpotifyAuthService:
+class SpotifyTokenManager(Singleton):
     """Service for authenticating and authorizing the Spotify API.
 
     This class handles the authentication and authorization for the Spotify API.
@@ -56,16 +57,16 @@ class SpotifyAuthService:
     _instance = None
 
     def __new__(cls):
-        """Create a new instance of the SpotifyAuthService.
+        """Create a new instance of the SpotifyTokenManager.
 
-        This method creates a new instance of the SpotifyAuthService if one does
+        This method creates a new instance of the SpotifyTokenManager if one does
         not already exist. If an instance already exists, it will return the
         existing instance. This follows the singleton pattern.
 
         Returns
         -------
-        SpotifyAuthService
-            The singleton instance of the SpotifyAuthService.
+        SpotifyTokenManager
+            The singleton instance of the SpotifyTokenManager.
         """
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -76,12 +77,13 @@ class SpotifyAuthService:
         return cls._instance
 
     def __init__(self):
+        super().__init__()
         self.__access_token = None
         self.__refresh_token = None
         self.__token_expiration_date = None
 
     def to_dict(self):
-        """Return the attributes of the SpotifyAuthService as a dictionary."""
+        """Return the attributes of the SpotifyTokenManager as a dictionary."""
         return {
             "access_token": self.__access_token,
             "refresh_token": self.__refresh_token,
