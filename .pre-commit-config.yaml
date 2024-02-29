@@ -40,6 +40,16 @@ repos:
         name: Sort module imports in .py files
         description: Sort module imports in .py files
         args: [ "--profile", "black", "--filter-files" ]
+  # ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.2.2
+    hooks:
+      # Run the linter.
+      - id: ruff
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
   # flake8
   - repo: https://github.com/PyCQA/flake8
     rev: 7.0.0
