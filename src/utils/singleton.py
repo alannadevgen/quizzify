@@ -1,7 +1,16 @@
-class Singleton(type):
-    """Metaclass for creating singleton classes."""
+from typing import Dict
 
-    _instance = None
+
+class Singleton(type):
+    """Metaclass for creating singleton classes.
+
+    Attributes
+    ----------
+    _instance : dict
+        A dictionary containing the singleton instances of the class.
+    """
+
+    _instance: Dict = {}
 
     def __call__(cls, *args, **kwargs):
         """Create a new instance of the singleton class.

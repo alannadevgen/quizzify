@@ -10,7 +10,7 @@ from utils.singleton import Singleton
 load_dotenv()
 
 
-class SpotifyTokenManager(Singleton):
+class SpotifyTokenManager(metaclass=Singleton):
     """Service for authenticating and authorizing the Spotify API.
 
     This class handles the authentication and authorization for the Spotify API.
@@ -54,27 +54,7 @@ class SpotifyTokenManager(Singleton):
     redirect_uri = os.environ.get("SPOTIFY_REDIRECT_URI")
 
     # Singleton instance
-    _instance = None
-
-    def __new__(cls):
-        """Create a new instance of the SpotifyTokenManager.
-
-        This method creates a new instance of the SpotifyTokenManager if one does
-        not already exist. If an instance already exists, it will return the
-        existing instance. This follows the singleton pattern.
-
-        Returns
-        -------
-        SpotifyTokenManager
-            The singleton instance of the SpotifyTokenManager.
-        """
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            # Initialize the singleton instance
-            cls._instance.__refresh_token = None
-            cls._instance.__access_token = None
-            cls._instance.__token_expiration_date = None
-        return cls._instance
+    # _instance = None
 
     def __init__(self):
         super().__init__()
