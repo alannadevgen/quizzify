@@ -7,10 +7,10 @@ import bcrypt
 from dotenv import load_dotenv
 from fastapi import HTTPException
 
-from databases import crud
-from spotify.spotify_auth_service import SpotifyAuthService
-from spotify.spotify_user_info import get_spotify_user_info
-from utils.helpers import check_email, generate_random_string
+from quizzify.databases import crud
+from quizzify.spotify.spotify_token_manager import SpotifyTokenManager
+from quizzify.spotify.spotify_user_info import get_spotify_user_info
+from quizzify.utils.helpers import check_email, generate_random_string
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ POSTGRES_DB = os.environ.get("POSTGRES_DB")
 
 
 # instantiate token manager for Spotify access token
-spotify_auth = SpotifyAuthService()
+spotify_auth = SpotifyTokenManager()
 
 
 async def login_redirect_url():
@@ -56,7 +56,7 @@ async def login_redirect_url():
                 "response_type": "code",
                 "scope": SPOTIFY_AUTH_SCOPE,
                 "state": state,
-                "show_dialog": True,  # ask user to reauthorize if already authorized
+                "show_dialog": False,  # ask user to reauthorize if already authorized
             }
         )
     )
