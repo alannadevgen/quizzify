@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 import requests  # type: ignore[import-untyped]
 from dotenv import load_dotenv
 
-from utils.helpers import encode_str_to_base64
-from utils.singleton import Singleton
+from quizzify.utils.helpers import encode_str_to_base64
+from quizzify.utils.singleton import Singleton
 
 load_dotenv()
 

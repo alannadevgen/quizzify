@@ -5,14 +5,14 @@ import requests  # type: ignore[import-untyped]
 from dotenv import load_dotenv
 from fastapi import HTTPException, status
 
-from spotify.spotify_auth_service import SpotifyAuthService
+from quizzify.spotify.spotify_token_manager import SpotifyTokenManager
 
 # load environment variables
 load_dotenv()
 # define base URL for Spotify API
 SPOTIFY_BASE_URL = os.environ.get("SPOTIFY_BASE_URL")
 # instantiate token manager for Spotify access token
-spotify_auth = SpotifyAuthService()
+spotify_auth = SpotifyTokenManager()
 
 logger = logging.getLogger(__name__)
 
