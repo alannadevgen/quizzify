@@ -13,9 +13,9 @@ class User(BaseModel):
     """
 
     id: Optional[UUID] = None
-    username: Optional[str] = None
+    username: str
     email: str
-    password: Optional[str]
+    password: str
 
 
 class Artist(BaseModel):
