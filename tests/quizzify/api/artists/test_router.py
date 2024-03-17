@@ -1,19 +1,21 @@
-# def test_get_top_artists(quizzify_test_app):
-# Test case for successful response
-# response = quizzify_test_app.post(
-#     url="/artists/top",
-#     json={"time_range": "short_term", "limit": 5},
-#     headers={"user-id": "example_user_id"},
-# )
-# assert response.status_code == 200
-# assert isinstance(response.json(), list)
-# assert len(response.json()) == 5
+def test_get_top_artists_valid(quizzify_test_app):
+    # Test case for successful response
+    response = quizzify_test_app.post(
+        url="/artists/top",
+        json={"time_range": "short_term", "limit": 5},
+        headers={"user-id": "example_user_id"},
+    )
+    print(response.json())
+    assert response.json() == 200
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    assert len(response.json()) == 5
 
 
 def test_get_top_artists_invalid_limit(quizzify_test_app):
     # Test case for invalid limit exceeding 50
     response = quizzify_test_app.post(
-        "/artists/top",
+        url="/artists/top",
         json={"time_range": "short_term", "limit": 51},
         headers={"user_id": "example_user_id"},
     )

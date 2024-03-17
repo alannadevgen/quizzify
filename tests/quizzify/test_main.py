@@ -6,8 +6,6 @@ from fastapi.testclient import TestClient
 
 from quizzify.main import app
 
-V1_PREFIX = "/v1"
-
 
 @pytest.fixture(scope="session")
 def quizzify_test_app() -> FastAPI:
