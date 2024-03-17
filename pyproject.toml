@@ -33,6 +33,8 @@ include = '\.pyi?$'
 pythonpath = [
   ".",
   "src",
+  "quizify",
+  "tests",
 ]
 
 [tool.commitizen]
