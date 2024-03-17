@@ -28,7 +28,8 @@ async def get_top_artists(
     Parameters
     ----------
     time_range : str, optional
-        The time range for the top artists, by default "short_term"
+        The time range for the top artists. Valid values are 'short_term',
+        'medium_term' and 'long_term'.
     limit : int
         The number of artists to fetch (the maximum is set to 50 by the Spotify API).
     user_id : str
