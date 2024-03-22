@@ -52,7 +52,7 @@ def create_user(
     )
     # Make the changes to the database persistent
     connection.commit()
-    logger.info("User successfully created.")
+    logger.info(f"User {username} successfully created.")
 
     # Close communication with the database
     cursor.close()
@@ -110,7 +110,7 @@ def create_spotify_user(
     )
     # Make the changes to the database persistent
     connection.commit()
-    logger.info("Spotify user successfully created.")
+    logger.info(f"Spotify user {spotify_username} successfully created.")
 
     # Close communication with the database
     cursor.close()
@@ -284,15 +284,18 @@ def insert_artist(
     cursor.execute(
         query=(
             "INSERT INTO artists "
-            "(id, name, image_url, popularity) "
+            "(id, name, popularity, genres, followers, image_url) "
             "VALUES"
-            "(%(artist_id)s, %(artist_name)s, %(artist_image)s, %(popularity)s);"
+            "(%(artist_id)s, %(artist_name)s, %(popularity)s, %(genres)s, "
+            "%(followers)s, %(artist_image)s);"
         ),
         vars={
             "artist_id": artist.id,
             "artist_name": artist.name,
-            "artist_image": artist.image_url,
             "popularity": artist.popularity,
+            "genres": artist.genres,
+            "followers": artist.followers,
+            "artist_image": artist.image_url,
         },
     )
     connection.commit()
@@ -336,6 +339,7 @@ def get_songs_ids():
 
 def insert_album(
     album: Album,
+    artist_id: str,
 ):
     """Insert an album into the database.
 
@@ -343,23 +347,27 @@ def insert_album(
     ----------
     album : Album
         The album to insert into the database.
+    artist_id : str
+        The artist's ID.
     """
     connection = connect_to_db()
     cursor = connection.cursor()
     cursor.execute(
         query=(
             "INSERT INTO albums "
-            "(id, name, image_url, release_year, popularity) "
+            "(id, name, popularity, release_year, total_tracks, image_url, artist_id) "
             "VALUES"
-            "(%(album_id)s, %(album_name)s, %(album_image)s, %(album_release_year)s, "
-            "%(popularity)s);"
+            "(%(album_id)s, %(album_name)s, %(popularity)s, %(album_release_year)s, "
+            "%(total_tracks)s, %(album_image)s, %(artist_id)s );"
         ),
         vars={
             "album_id": album.id,
             "album_name": album.name,
-            "album_image": album.image_url,
-            "album_release_year": album.release_year,
             "popularity": album.popularity,
+            "album_release_year": album.release_year,
+            "total_tracks": album.total_tracks,
+            "album_image": album.image_url,
+            "artist_id": artist_id,
         },
     )
     connection.commit()

@@ -4,12 +4,12 @@ from unittest.mock import patch
 
 import pytest
 
-from spotify.spotify_auth_service import SpotifyAuthService
+from quizzify.spotify.spotify_token_manager import SpotifyTokenManager
 
 
 @pytest.fixture
 def spotify_auth_service():
-    # Set up SpotifyAuthService with mock environment variables
+    # Set up SpotifyTokenManager with mock environment variables
     with patch.dict(
         os.environ,
         {
@@ -22,7 +22,7 @@ def spotify_auth_service():
             "STATE": "PUepTCduNgbcyH6Y",
         },
     ):
-        yield SpotifyAuthService()
+        yield SpotifyTokenManager()
 
 
 def test_refresh_token(spotify_auth_service):
@@ -92,10 +92,12 @@ def test_get_access_token_existing_token_not_expired(spotify_auth_service):
 
     # Patch the private attribute directly to return the mock_access_token
     with patch.object(
-        spotify_auth_service, "_SpotifyAuthService__access_token", new=mock_access_token
+        spotify_auth_service,
+        "_SpotifyTokenManager__access_token",
+        new=mock_access_token,
     ), patch.object(
         spotify_auth_service,
-        "_SpotifyAuthService__token_expiration_date",
+        "_SpotifyTokenManager__token_expiration_date",
         new=mock_token_expiration_date,
     ):
         # Call the get_access_token method
@@ -110,11 +112,11 @@ def test_get_access_token_existing_token_expired_refresh_token_available(
     spotify_auth_service,
 ):
     # Set an expired access token and a refresh token
-    spotify_auth_service._SpotifyAuthService__access_token = "expired_access_token"
-    spotify_auth_service._SpotifyAuthService__token_expiration_date = (
+    spotify_auth_service._SpotifyTokenManager__access_token = "expired_access_token"
+    spotify_auth_service._SpotifyTokenManager__token_expiration_date = (
         datetime.now() - timedelta(minutes=10)
     )
-    spotify_auth_service._SpotifyAuthService__refresh_token = "valid_refresh_token"
+    spotify_auth_service._SpotifyTokenManager__refresh_token = "valid_refresh_token"
 
     # Mock the requests.post method
     with patch("requests.post") as mock_post:
@@ -132,6 +134,18 @@ def test_get_access_token_existing_token_expired_refresh_token_available(
 
 
 def test_get_access_token_no_valid_tokens(spotify_auth_service):
-    # Call the get_access_token method without valid tokens
+    """Check that an error is raised if there is no valid access token or refresh token.
+
+    Call the get_access_token method without valid tokens
     with pytest.raises(ValueError, match="No valid access token or refresh token"):
+    """
+    # Remove access token and refresh token
+    spotify_auth_service._SpotifyTokenManager__access_token = None
+    spotify_auth_service._SpotifyTokenManager__refresh_token = None
+
+    # Call the get_access_token method without valid tokens
+    with pytest.raises(
+        ValueError,
+        match="No valid access token or refresh token available",
+    ):
         spotify_auth_service.get_access_token()

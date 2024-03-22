@@ -1,33 +1,9 @@
 -- This file is used to create the tables in the database when the server starts up.
 -- The tables are only created if they do not already exist in the database.
 
--- Relation Albums
-
--- column_name  |     data_type
-----------------+-------------------
--- id           | character varying
--- name         | character varying
--- artist_id    | character varying, foreign key
--- popularity   | integer
--- release_date | date
--- total_tracks | integer
-
-DROP TABLE IF EXISTS albums;
-
-CREATE TABLE albums (
-    id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(100),
-    artist_id VARCHAR(100),
-    popularity INT,
-    release_date DATE,
-    total_tracks INT,
-    FOREIGN KEY (artist_id) REFERENCES artists(id)
-);
-
 ----------------------------------------------------------------------------------------
+----------------------------------- Relation Artists -----------------------------------
 ----------------------------------------------------------------------------------------
-
--- Relation Artists
 
 -- column_name |     data_type
 ---------------+-------------------
@@ -36,18 +12,47 @@ CREATE TABLE albums (
 -- popularity  | integer
 -- image_url   | character varying
 
--- DROP TABLE IF EXISTS artists;
+DROP TABLE IF EXISTS artists CASCADE ;
+
 CREATE TABLE artists (
     id VARCHAR(50) PRIMARY KEY,
     name VARCHAR(100),
     popularity INT,
+    genres VARCHAR(50)[],
+    followers INT,
     image_url VARCHAR(150)
 );
 
 ----------------------------------------------------------------------------------------
+----------------------------------- Relation Albums ------------------------------------
 ----------------------------------------------------------------------------------------
 
--- Relation Songs
+-- column_name  |     data_type
+----------------+-------------------
+-- id           | character varying
+-- name         | character varying
+-- artist_id    | character varying, foreign key
+-- popularity   | integer
+-- release_year | date
+-- total_tracks | integer
+
+DROP TABLE IF EXISTS albums CASCADE;
+
+CREATE TABLE albums (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(200),
+    popularity INT,
+    release_year VARCHAR(4),
+    total_tracks INT,
+    image_url VARCHAR(150),
+    artist_id VARCHAR(25),
+    FOREIGN KEY (artist_id) REFERENCES artists(id)
+);
+
+----------------------------------------------------------------------------------------
+------------------------------------ Relation Songs ------------------------------------
+----------------------------------------------------------------------------------------
+
 -- column_name  |     data_type
 ----------------+-------------------
 -- id           | character varying
@@ -61,21 +66,22 @@ CREATE TABLE artists (
 DROP TABLE IF EXISTS songs;
 
 CREATE TABLE songs (
-    id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(100),
-    artist_id VARCHAR(50),
-    album_id VARCHAR(50),
+    id VARCHAR(50),
+    name VARCHAR(200),
     popularity INT,
     duration_ms INT,
     track_number INT,
+    artist_id VARCHAR(25),
+    album_id VARCHAR(25),
+    PRIMARY KEY (id, artist_id, album_id),
     FOREIGN KEY (artist_id) REFERENCES artists(id),
     FOREIGN KEY (album_id) REFERENCES albums(id)
 );
 
 ----------------------------------------------------------------------------------------
+------------------------------------ Relation Users ------------------------------------
 ----------------------------------------------------------------------------------------
 
--- Relation Users
 -- column_name |          data_type
 ---------------+-----------------------------
 -- hashed_pwd  | bytea
@@ -96,9 +102,9 @@ CREATE TABLE users (
 
 
 ----------------------------------------------------------------------------------------
+-------------------------------- Relation Spotify Users --------------------------------
 ----------------------------------------------------------------------------------------
 
--- Relation Spotify Users
 --    column_name    |     data_type
 ---------------------+-------------------
 -- id                | character varying
