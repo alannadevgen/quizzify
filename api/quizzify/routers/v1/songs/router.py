@@ -3,7 +3,7 @@ from typing import Dict, List
 from fastapi import APIRouter
 
 from quizzify.api.spotify.spotify_requests import spotify_get_user_id
-from quizzify.routers.songs import service
+from quizzify.routers.v1.xsongs import service
 from quizzify.utils.schemas import TimeRange
 
 # define router for songs endpoints

@@ -2,11 +2,11 @@ import logging.config
 
 from fastapi import FastAPI
 
-from quizzify.routers.albums.router import router as albums_router
-from quizzify.routers.artists.router import router as artists_router
-from quizzify.routers.auth.router import router as auth_router
-from quizzify.routers.questions.router import router as questions_router
-from quizzify.routers.songs.router import router as songs_router
+from quizzify.routers.v1.albums.router import router as albums_router
+from quizzify.routers.v1.artists.router import router as artists_router
+from quizzify.routers.v1.auth.router import router as auth_router
+from quizzify.routers.v1.questions.router import router as questions_router
+from quizzify.routers.v1.songs.router import router as songs_router
 
 # Define the API version prefix
 API_VERSION = "/v1"

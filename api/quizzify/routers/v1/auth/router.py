@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, Request, status
 from fastapi.responses import RedirectResponse
 
-from quizzify.routers.auth import service
+from quizzify.routers.v1.auth import service
 from quizzify.utils import schemas
 
 # load environment variables

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from quizzify.routers.questions import service
+from quizzify.routers.v1.questions import service
 
 router = APIRouter()
 
